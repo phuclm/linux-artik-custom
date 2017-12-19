@@ -20,3 +20,10 @@ nexell-snd-es8316-objs 				:= nexell-es8316.o
 nexell-snd-alc5658-objs 			:= nexell-alc5658.o
 nexell-snd-null-objs				:= nexell-null.o
 nexell-snd-spdif-transceiver-objs 		:= nexell-spdif-transceiver.o
+
+# phuclm
+obj-$(CONFIG_SND_CODEC_MICROSEMI-DAC) += microsemi-snd-dac.o
+
+microsemi-snd-dac-objs := microsemi-dac.o
+
+

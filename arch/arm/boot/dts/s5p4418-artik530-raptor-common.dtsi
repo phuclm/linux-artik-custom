@@ -16,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+changelog:
+    12/10/2017 - phuclm@lumi.com.vn
+        change to support ZL38063
+ */
+ 
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/input/input.h>
 #include "s5p4418-artik530.dtsi"
@@ -228,6 +234,7 @@
 			status = "okay";
 		};
 
+        /* @phuclm - this i2s_0 must used for TAS dac amp */
 		i2s_0:i2s@c0055000 {
 			#sound-dai-cells = <1>;
 			master-mode = <1>;
@@ -238,6 +245,21 @@
 			pre-supply-mclk = <1>;
 			status = "okay";
 		};
+		
+		/* @phuclm - this i2s_1 used for ZL38063 and compatible with 
+		  microsemi,microsemi-dac
+		  TODO - check trans-mode of i2s
+		 */
+		i2s_1::i2s@c0056000 {
+            #sound-dai-cells = <1>;
+            master-mode = <1>;
+            mclk-in = <0>;
+            trans-mode = <0>;
+            frame-bit = <32>;
+            sample-rate = <48000>;
+            pre-supply-mclk = <1>;
+            status = "okay";
+        };
 
 		i2c_0:i2c@c00a4000 {
 			status = "okay";
@@ -391,6 +413,11 @@
 		};
 	};
 
+    /*
+        @phuclm - change this i2c to use for TAS DAC amplifier
+        TODO
+            - check driver code of current device
+    */
 	i2c_gpio6:i2c@6 {
 		compatible = "i2c-gpio";
 		gpios = <&gpio_a 5 0 /* sda */
@@ -400,11 +427,19 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		alc5658: alc5658@1a {
+        /* phuclm - edit for tas5720 
+            - change i2c address to 0x6C ADR0 short to GND
+            - change compatible */
+		/* alc5658: alc5658@1a {
 			#sound-dai-cells = <0>;
 			compatible = "realtek,rt5658";
 			reg = <0x1a>;
-		};
+		}; */
+		tas5720: tas5720@6c {
+            #sound-dai-cells = <0>;
+            compatible = "ti,tas5720";
+            reg = <0x6c>;
+        };
 	};
 
 	i2c_gpio7:i2c@7 {
@@ -483,16 +518,17 @@
 		compatible = "simple-audio-card";
 		simple-audio-card,name = "Artik530 raptor Audio";
 		simple-audio-card,mclk-fs = <256>;
-		simple-audio-card,widgets =
+		/* simple-audio-card,widgets =
 		    "Headphone", "Out Jack",
 		    "Microphone", "In Jack";
 		simple-audio-card,routing =
 		    "Out Jack", "HPOL",
 		    "Out Jack", "HPOR",
 		    "IN2P", "In Jack",
-		    "IN2P", "In Jack";
+		    "IN2P", "In Jack"; */
 		status = "okay";
 
+        /* phuclm - change to compatible with tas5720l */
 		simple-audio-card,dai-link@0 {
 		    format = "i2s";
 		    cpu {
@@ -500,11 +536,22 @@
 		    };
 
 		    codec {
-			sound-dai = <&alc5658>;
+			sound-dai = <&tas5720>;
 		    };
 		};
-
+		
+		/* phuclm - add zl380xx */
 		simple-audio-card,dai-link@1 {
+		    cpu {
+		    sound-dai = <&i2s_1 0>
+		    };
+		    
+		    codec {
+		    sound-dai = <zl380_codec>
+		    }
+		};
+
+		simple-audio-card,dai-link@2 {
 		    cpu {
 			sound-dai = <&spdif_tx 0>;
 		    };
@@ -514,6 +561,12 @@
 		    };
 		};
 	};
+	
+	zl380_codec: zl380-codec {
+	   #sound-dai-cells = <0>;
+       compatible = "ms,zl38040", "ms,zl38050", "ms,zl38060", "ms,zl38080";
+       status = "okay";
+    };
 
 	spdif_out: spdif-out {
 		#sound-dai-cells = <0>;
@@ -644,6 +697,10 @@
 	status = "okay";
 };
 
+/* @phuclm - modifier this spi_2 to used with ZL38063 
+    disable spidev
+    change cs-gpios 
+    */
 &spi_2 {
 	status = "okay";
 	cs-gpios = <&gpio_c 10 0>;
@@ -654,7 +711,22 @@
 		controller-data {
 			samsung,spi-feedback-delay = <0>;
 		};
+		status = "disable";
 	};
+};
+
+/* phuclm - add spi_0 for ZWave */
+&spi_0 {
+    status = "okay"
+    spidev@0 {
+        compatible = "linux,spidev";
+        status = "okay";
+        reg = <0>;
+        spi-max-frequency = <10000000>;
+        controller-data {
+            samsung,spi-feedback-delay = <0>;
+        };
+    };
 };
 
 &i2c_2 {

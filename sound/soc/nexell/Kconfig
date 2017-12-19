@@ -1,7 +1,10 @@
 #
 # Copyright 2016 Nexell.
+# Changelog:
+#   12/10/2017 phuclm@lumi.com.vn add ZL38063 driver.
 #
 # Configuration options for the Nexell Sound
+
 
 config SND_NX_SOC
 	tristate "Nexell SoC Audio"
@@ -54,3 +57,9 @@ config SND_CODEC_ALC5658
 	tristate "ALC5658 I2S audio codec."
 	depends on SND_NX_I2S
 	select SND_SOC_RT5659
+	
+# phuclm@lumi.com.vn add ZL38063 driver
+config SND_CODEC_ZL38063
+    tristate "ZL38063 I2S audio codec"
+    depends on SND_NX_I2S
+    select SND_SOC_ZL380XX_CODEC
