@@ -87,8 +87,7 @@ static int alc5658_hw_params(struct snd_pcm_substream *substream,
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
-	/* 48K * 256 = 12.288 Mhz */
-	unsigned int freq = params_rate(params) * 256;
+	unsigned int freq = params_rate(params) * 256; /* 48K * 256 = 12.288 Mhz */
 	unsigned int fmt = SND_SOC_DAIFMT_I2S |
 			SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
 	int ret = 0;

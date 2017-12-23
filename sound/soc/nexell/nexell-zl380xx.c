@@ -24,12 +24,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * changelog:
- * 	phuclm@lumi.com.vn
- * 		12/10/2017 - change to compatible with samsung Artik530
- * */
-
 #include <linux/module.h>
 #include <linux/platform_device.h>
 
@@ -63,7 +57,6 @@ TODO: re-design machine driver to take all relevant inputs i.e. master/slave, i2
         dai_link information from a device tree blob . Take reference of simple-card.c in
         /sound/soc/generic
 
- 	 @phuclm - this codec using i2s_1 of s5p4418 chip
  */
 static struct snd_soc_dai_link snd_microsemi_dac_dai[] = {
     {

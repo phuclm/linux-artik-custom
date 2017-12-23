@@ -22,8 +22,10 @@ nexell-snd-null-objs				:= nexell-null.o
 nexell-snd-spdif-transceiver-objs 		:= nexell-spdif-transceiver.o
 
 # phuclm
-obj-$(CONFIG_SND_CODEC_MICROSEMI-DAC) += microsemi-snd-dac.o
+obj-$(CONFIG_SND_CODEC_ZL380xx) += nexell-snd-zl380xx.o
+obj-$(CONFIG_SND_CODEC_TAS5720) += nexell-snd-tas5720.o
 
-microsemi-snd-dac-objs := microsemi-dac.o
+nexell-snd-zl380xx-objs := nexell-zl380xx.o
+nexell-snd-tas5720-objs := nexell-tas5720.o
 
 

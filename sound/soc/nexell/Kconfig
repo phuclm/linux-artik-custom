@@ -59,7 +59,12 @@ config SND_CODEC_ALC5658
 	select SND_SOC_RT5659
 	
 # phuclm@lumi.com.vn add ZL38063 driver
-config SND_CODEC_ZL38063
+config SND_CODEC_ZL380xx
     tristate "ZL38063 I2S audio codec"
     depends on SND_NX_I2S
-    select SND_SOC_ZL380XX_CODEC
+    select SND_SOC_ZL380xx
+    
+config SND_CODEC_TAS5720
+    tristate "TAS5720 I2S audio codec"
+    depends on SND_NX_I2S
+    select SND_SOC_TAS5720

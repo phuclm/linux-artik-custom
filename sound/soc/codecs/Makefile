@@ -195,7 +195,7 @@ snd-soc-tas2552-objs := tas2552.o
 
 # phuclm add
 snd-soc-tas5720-objs := tas5720.o
-snd-soc-zl380xx_codec-objs := zl380xx_codec.o
+snd-soc-zl380xx-objs := zl380xx_codec.o
 
 obj-$(CONFIG_SND_SOC_88PM860X)	+= snd-soc-88pm860x.o
 obj-$(CONFIG_SND_SOC_AB8500_CODEC)	+= snd-soc-ab8500-codec.o
@@ -392,4 +392,4 @@ obj-$(CONFIG_SND_SOC_TPA6130A2)	+= snd-soc-tpa6130a2.o
 
 # phuclm add
 obj-$(CONFIG_SND_SOC_TAS5720) += snd-soc-tas5720.o
-obj-$(CONFIG_SND_SOC_ZL380XX_CODEC) += snd-soc-zl380xx_codec.o
+obj-$(CONFIG_SND_SOC_ZL380xx) += snd-soc-zl380xx.o

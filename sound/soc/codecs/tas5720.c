@@ -272,7 +272,7 @@ static int tas5720_codec_probe(struct snd_soc_codec *codec)
 	ret = regulator_bulk_enable(ARRAY_SIZE(tas5720->supplies),
 				    tas5720->supplies);
 	if (ret != 0) {
-		dev_err(codec->dev, "failed to enable supplies: %d\n", ret);
+		dev_err(codec->dev, "--------------> failed to enable supplies: %d\n", ret);
 		return ret;
 	}
 
@@ -575,7 +575,7 @@ static int tas5720_probe(struct i2c_client *client,
 				     &soc_codec_dev_tas5720,
 				     tas5720_dai, ARRAY_SIZE(tas5720_dai));
 	if (ret < 0) {
-		dev_err(dev, "failed to register codec: %d\n", ret);
+		dev_err(dev, "------------------------> failed to register codec: %d\n", ret);
 		return ret;
 	}
 

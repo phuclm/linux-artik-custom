@@ -937,8 +937,8 @@ config SND_SOC_TAS5720
       Enable support for Texas Instruments TAS5720L/M high-efficiency mono
       Class-D audio power amplifiers.
       
-config SND_SOC_ZL380XX_CODEC
-    tristate "Microsemi ZL380XX ASR Assistant"
+config SND_SOC_ZL380xx
+    tristate "Microsemi ZL380xx ASR Assistant"
 #    depends on SPI -> don't need spi for this version of driver
     help
         Enable support for Zl380xx ASR Assistant
