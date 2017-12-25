@@ -234,35 +234,6 @@ changelog:
 			status = "okay";
 		};
 
-        /* 
-            @phuclm - this i2s_0 must used for TAS dac amp 
-        */
-		i2s_0:i2s@c0055000 {
-			#sound-dai-cells = <1>;
-			master-mode = <1>;
-			mclk-in = <0>;
-			trans-mode = <0>;
-			frame-bit = <32>;
-			sample-rate = <48000>;
-			pre-supply-mclk = <1>;
-			status = "okay";
-		};
-		
-		/* @phuclm - this i2s_1 used for ZL38063 and compatible with 
-		  microsemi,microsemi-dac
-		  TODO - check trans-mode of i2s
-		 */
-		i2s_1:i2s@c0056000 {
-            #sound-dai-cells = <1>;
-            master-mode = <1>;
-            mclk-in = <0>;
-            trans-mode = <0>;
-            frame-bit = <32>;
-            sample-rate = <48000>;
-            pre-supply-mclk = <1>;
-            status = "okay";
-        };
-
 		i2c_0:i2c@c00a4000 {
 			status = "okay";
 			#address-cells = <1>;
@@ -341,7 +312,105 @@ changelog:
 			status = "okay";
 			sram = <0 0>;
 		};
+		
+		// phuclm - this i2s used for zl38063 codec
+        i2s_0:i2s@c0055000 {
+            #sound-dai-cells = <0>;
+            status = "okay";
+            trans-mode = <0>;
+            mclk-in = <0>;
+            pre-supply-mclk = <1>;
+            
+            master-mode = <0>; // importain!!!
+            frame-bit = <32>;
+            sample-rate = <48000>; // maybe 16000
+        };
+        
+        // phuclm = this i2s used for tas5720
+        i2s_1:i2s@c0056000 {
+            #sound-dai-cells = <0>;
+            status = "okay";
+            mclk-in = <0>;
+            trans-mode = <0>;
+            pre-supply-mclk = <1>;
+            
+            master-mode = <1>;
+            frame-bit = <32>;
+            sample-rate = <48000>;
+        };
 	};	/*** soc ***/
+	
+	/*
+        @phuclm - change this i2c to use for TAS DAC amplifier
+        TODO
+            - check driver code of current device
+    */
+    i2c_gpio6:i2c@6 {
+        compatible = "i2c-gpio";
+        gpios = <&gpio_a 5 0 /* sda */
+                 &gpio_a 4 0 /* scl */
+                >;
+        i2c-gpio,delay-us = <1>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        
+        tas5720: tas5720@6c {
+            #sound-dai-cells = <0>;
+            compatible = "ti,tas5720";
+            reg = <0x6c>;
+        };
+    };
+    
+    zl380_codec: zl380-codec {
+       #sound-dai-cells = <0>;
+       compatible = "ms,zl38040", "ms,zl38050", "ms,zl38060", "ms,zl38080";
+       status = "okay";
+    };
+    
+    sound {
+        compatible = "simple-audio-card";
+        simple-audio-card,name = "Artik530 Lumi Modified Audio";
+            
+        status = "okay";
+
+        // phuclm - change to compatible with tas5720
+        simple-audio-card,dai-link@0 {
+            format = "i2s";
+            cpu {
+                sound-dai = <&i2s_1 0>;
+            };
+            codec {
+                sound-dai = <&tas5720>;
+            };
+        };
+        
+        // phuclm - add zl380xx 
+        simple-audio-card,dai-link@1 {
+            format = "i2s";
+            cpu {
+                sound-dai = <&i2s_0 0>;
+            };
+            codec {
+                frame-master;
+                bitclock-master;
+                sound-dai = <&zl380_codec>;
+            };
+        };
+    };
+    
+    /*
+    sound {
+        compatible = "microsemi,microsemi-dac";
+        i2s-controller = <&i2s_1>;
+        status = "okay";
+    };
+    */
+    
+    spdif_out: spdif-out {
+        #sound-dai-cells = <0>;
+        compatible = "linux,spdif-dit";
+    };
+	
 
 	backlight: pwm-backlight {
 		compatible = "pwm-backlight";
@@ -487,82 +556,6 @@ changelog:
 		status = "okay";
 	};
 	
-	 /*
-        @phuclm - change this i2c to use for TAS DAC amplifier
-        TODO
-            - check driver code of current device
-    */
-    i2c_gpio6:i2c@6 {
-        compatible = "i2c-gpio";
-        gpios = <&gpio_a 5 0 /* sda */
-                 &gpio_a 4 0 /* scl */
-                >;
-        i2c-gpio,delay-us = <1>;
-        #address-cells = <1>;
-        #size-cells = <0>;
-        
-        tas5720: tas5720@6c {
-            #sound-dai-cells = <0>;
-            compatible = "ti,tas5720";
-            reg = <0x6c>;
-        };
-    };
-	
-	zl380_codec: zl380-codec {
-       #sound-dai-cells = <0>;
-       compatible = "ms,zl38040", "ms,zl38050", "ms,zl38060", "ms,zl38080";
-       status = "okay";
-    };
-    
-    sound {
-        compatible = "simple-audio-card";
-        simple-audio-card,name = "Artik530 Lumi Modified Audio";
-        simple-audio-card,format = "i2s";
-        simple-audio-card,mclk-fs = <256>;
-        
-        simple-audio-card,widgets =
-            "Speaker", "Out Jack";
-        simple-audio-card,routing =
-            "Out Jack", "DAC";
-            
-        status = "okay";
-
-        // phuclm - change to compatible with tas5720
-        simple-audio-card,dai-link@0 {
-            format = "i2s";
-            cpu {
-            sound-dai = <&i2s_1 0>;
-            };
-            codec {
-            sound-dai = <&tas5720>;
-            };
-        };
-        
-        // phuclm - add zl380xx 
-        simple-audio-card,dai-link@1 {
-            format = "i2s";
-            cpu {
-            sound-dai = <&i2s_0 0>;
-            };
-            codec {
-            sound-dai = <&zl380_codec>;
-            };
-        };
-    };
-    
-    /*
-    sound {
-        compatible = "microsemi,microsemi-dac";
-        i2s-controller = <&i2s_1>;
-        status = "okay";
-    };
-    */
-	
-	spdif_out: spdif-out {
-		#sound-dai-cells = <0>;
-		compatible = "linux,spdif-dit";
-	};
-
 	gpio_keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
